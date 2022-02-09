@@ -50,42 +50,33 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 class MyScore extends StatefulWidget{ 
+  final int counter;
+  
+  final VoidCallback decrementCounter;
+  final VoidCallback incrementCounter;
+  MyScore({
+    required Key key,
+    required this.counter,
+    required this.incrementCounter,
+    required this.decrementCounter
+  }) : super(key: key);
   @override 
   _MyScoreState createState() => _MyScoreState();
 }
 class _MyScoreState extends State<MyScore> { 
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
-  void _decrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter--;
-    });
+  void _onPressed() { 
+    
   }
   @override 
   Widget build(BuildContext context) { 
     return 
       GestureDetector(
-        onTap:() => _incrementCounter(),
-        onLongPress: () => _decrementCounter(),
-        onSecondaryTap: _decrementCounter,
+        onTap:() => widget.incrementCounter(),
+        onLongPress: () => widget.decrementCounter(),
+        onSecondaryTap: ()=> widget.decrementCounter(),
         child:
           Text(
-            '$_counter',
+            '${widget.counter}',
             style: Theme.of(context).textTheme.headline2,
           ),
       );
@@ -127,14 +118,45 @@ class _MyHomePageState extends State<MyHomePage> {
     }
     return ret_icon;
   }
-  void _incrementCounter() {
+  void _incrementLeftCount() {
     setState(() {
       // This call to setState tells the Flutter framework that something has
       // changed in this State, which causes it to rerun the build method below
       // so that the display can reflect the updated values. If we changed
       // _counter without calling setState(), then the build method would not be
       // called again, and so nothing would appear to happen.
-      _counter++;
+      _left_count++;
+    });
+  }
+  void _incrementRightCount() {
+    setState(() {
+      // This call to setState tells the Flutter framework that something has
+      // changed in this State, which causes it to rerun the build method below
+      // so that the display can reflect the updated values. If we changed
+      // _counter without calling setState(), then the build method would not be
+      // called again, and so nothing would appear to happen.
+      _right_count++;
+    });
+  }
+  
+  void _decrementLeftCount() {
+    setState(() {
+      // This call to setState tells the Flutter framework that something has
+      // changed in this State, which causes it to rerun the build method below
+      // so that the display can reflect the updated values. If we changed
+      // _counter without calling setState(), then the build method would not be
+      // called again, and so nothing would appear to happen.
+      _left_count--;
+    });
+  }
+  void _decrementRightCount() {
+    setState(() {
+      // This call to setState tells the Flutter framework that something has
+      // changed in this State, which causes it to rerun the build method below
+      // so that the display can reflect the updated values. If we changed
+      // _counter without calling setState(), then the build method would not be
+      // called again, and so nothing would appear to happen.
+      _right_count--;
     });
   }
 
@@ -254,20 +276,20 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Padding(
+              // todo: https://stackoverflow.com/a/65273656
               padding: const EdgeInsets.fromLTRB(30.0, 4.0, 30.0, 4.0),
               child:
                 Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
-                    MyScore(),
+                    MyScore(counter: _left_count, incrementCounter: _incrementLeftCount, decrementCounter: _decrementLeftCount, key: const Key("1"),),
 
                     Text('-', 
                     style: Theme.of(context).textTheme.headline4), 
-                    MyScore()
+                    MyScore(counter: _right_count, incrementCounter: _incrementRightCount, decrementCounter: _decrementRightCount, key: const Key("2"),),
                   ],
                 ),
             ),
-            
             GestureDetector(
               onTap:_handleTimer,
               onLongPress: () => {
