@@ -193,13 +193,22 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _triggerSetTimer(context) async { 
     print("time is $_max_time");
+    // TODO: extend TimePicker and TimeOfDay better suit requirements (90 minute match)
     TimeOfDay currentTime = TimeOfDay(
         hour: getElapsedFromMaxTime().inMinutes, 
         minute: getElapsedFromMaxTime().inSeconds.remainder(60)
       );
     TimeOfDay? chosenTime = await showTimePicker(
       context: context, 
-      initialTime: currentTime
+      initialTime: currentTime,
+      builder: (BuildContext context, Widget? child) {
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
+          child: child!,
+        );
+      },
+      hourLabelText: "Minute",
+      minuteLabelText: "Second",
     );
     if (chosenTime != null && chosenTime != currentTime) { 
       setState(() {
