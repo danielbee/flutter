@@ -290,6 +290,14 @@ class _MyHomePageState extends State<MyHomePage> {
                   ],
                 ),
             ),
+            // todo: style and size this better
+            ElevatedButton(
+              onPressed: () => {
+                _incrementLeftCount(),
+                _incrementRightCount()
+              }, 
+              child: const Text("Double"), 
+            ),
             GestureDetector(
               onTap:_handleTimer,
               onLongPress: () => {
