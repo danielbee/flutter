@@ -88,7 +88,7 @@ enum TimerState {
    paused, 
    finished 
 }
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   int _counter = 0;
   int _left_count = 0;
   int _right_count = 0;
@@ -96,7 +96,13 @@ class _MyHomePageState extends State<MyHomePage> {
   Duration _max_time = Duration(minutes: 0, seconds: 20);
   late Timer _timer;
   Stopwatch _stopwatch = Stopwatch();
-  
+
+  late AnimationController myTimerAnimation;
+  @override 
+  void initState(){ 
+    super.initState();
+    myTimerAnimation = AnimationController(vsync: this, duration: const Duration(milliseconds: 250));
+  }
   IconData getTimerIconForTimerState(TimerState timer_state) { 
     IconData ret_icon;
     switch (timer_state) {
@@ -172,6 +178,7 @@ class _MyHomePageState extends State<MyHomePage> {
           _timer.cancel();
           break;
         case TimerState.paused:
+          myTimerAnimation.forward();
           _timer_state = TimerState.running;
           _stopwatch.start();
           Duration period = Duration(seconds:1);
@@ -201,6 +208,7 @@ class _MyHomePageState extends State<MyHomePage> {
           });
           break;
         case TimerState.running: 
+          myTimerAnimation.reverse();
           _timer_state = TimerState.paused;
           _stopwatch.stop();
           _timer.cancel();
@@ -323,7 +331,7 @@ class _MyHomePageState extends State<MyHomePage> {
       floatingActionButton: FloatingActionButton(
         onPressed: _handleTimer,
         tooltip: 'Increment',
-        child: Icon(getTimerIconForTimerState(_timer_state)),
+        child: AnimatedIcon(icon: AnimatedIcons.play_pause, progress: myTimerAnimation,),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
