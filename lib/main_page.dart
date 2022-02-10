@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../enums/timer_state.dart';
 import 'dart:ui';
 import 'dart:async';
-import 'score.dart';
+import 'atoms/score.dart';
 
 class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
   int _counter = 0;
