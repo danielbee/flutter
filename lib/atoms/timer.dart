@@ -2,28 +2,40 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'dart:ui';
 import '../_enums/score_is.dart';
-import "../_enums/timer_state.dart";
+import '../_enums/timer_is.dart';
+import '../_enums/timer_button_is.dart';
 
-class _TimerState extends State<FencingTimer> with TickerProviderStateMixin {
+class _TimerState extends State<FencingTimer> {
   TimerIs _state = TimerIs.paused;
   Duration _maxTime = const Duration(minutes: 0, seconds: 20);
   late Timer _timer;
   final Stopwatch _stopwatch = Stopwatch();
   var scoreSubscription;
+  var timerButtonSubscription;
 
-  late AnimationController timerAnimation;
   @override
   void initState() {
     super.initState();
-    timerAnimation = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 250));
     scoreSubscription =
         widget.scoreController.stream.asBroadcastStream().listen((event) {
-      if (event == ScoreIs.CHANGED) {
+      if (event == ScoreIs.changed) {
         safePauseTimer();
-        widget.scoreController.sink.add(ScoreIs.UNCHANGING);
+        widget.scoreController.sink.add(ScoreIs.unchanging);
       }
     });
+    timerButtonSubscription =
+        widget.buttonController.stream.asBroadcastStream().listen((event) {
+      if (event == TimerButtonIs.needingThingsHandled) {
+        _handleTimer();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    scoreSubscription.cancel();
+    timerButtonSubscription.cancel();
+    super.dispose();
   }
 
   /* Pauses timer if and only if it is running */
@@ -32,7 +44,8 @@ class _TimerState extends State<FencingTimer> with TickerProviderStateMixin {
       if (_state != TimerIs.running) {
         return;
       }
-      timerAnimation.reverse();
+      widget.buttonController.sink.add(TimerButtonIs.stopping);
+      //timerAnimation.reverse();
       _state = TimerIs.paused;
       _stopwatch.stop();
       _timer.cancel();
@@ -50,7 +63,8 @@ class _TimerState extends State<FencingTimer> with TickerProviderStateMixin {
           _timer.cancel();
           break;
         case TimerIs.paused:
-          timerAnimation.forward();
+          widget.buttonController.sink.add(TimerButtonIs.starting);
+          //timerAnimation.forward();
           _state = TimerIs.running;
           _stopwatch.start();
           Duration period = const Duration(seconds: 1);
@@ -104,7 +118,6 @@ class _TimerState extends State<FencingTimer> with TickerProviderStateMixin {
   }
 
   void _triggerSetTimer(context) async {
-    print("time is $_maxTime");
     // TODO: extend TimePicker and TimeOfDay better suit requirements (90 minute match)
     TimeOfDay currentTime = TimeOfDay(
         hour: getElapsedFromMaxTime().inMinutes,
@@ -131,25 +144,25 @@ class _TimerState extends State<FencingTimer> with TickerProviderStateMixin {
   }
 
   IconData getTimerIconForTimerState(TimerIs state) {
-    IconData ret_icon;
+    IconData retIcon;
     switch (state) {
       case TimerIs.none:
-        ret_icon = Icons.question_mark;
+        retIcon = Icons.question_mark;
         break;
       case TimerIs.finished:
-        ret_icon = Icons.restore;
+        retIcon = Icons.restore;
         break;
       case TimerIs.paused:
-        ret_icon = Icons.play_arrow;
+        retIcon = Icons.play_arrow;
         break;
       case TimerIs.running:
-        ret_icon = Icons.pause;
+        retIcon = Icons.pause;
         break;
       default:
-        ret_icon = Icons.question_mark;
+        retIcon = Icons.question_mark;
         break;
     }
-    return ret_icon;
+    return retIcon;
   }
 
   @override
@@ -174,7 +187,11 @@ class _TimerState extends State<FencingTimer> with TickerProviderStateMixin {
 
 class FencingTimer extends StatefulWidget {
   final StreamController<ScoreIs> scoreController;
-  FencingTimer({required Key key, required this.scoreController})
+  final StreamController<TimerButtonIs> buttonController;
+  const FencingTimer(
+      {required Key key,
+      required this.scoreController,
+      required this.buttonController})
       : super(key: key);
   @override
   _TimerState createState() => _TimerState();

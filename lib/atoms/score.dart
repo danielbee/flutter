@@ -13,7 +13,7 @@ class _ScoreState extends State<Score> {
     super.initState();
     eventSubscription =
         widget.eventController.stream.asBroadcastStream().listen((event) {
-      if (event == ScoreIs.INCREMENTING) {
+      if (event == ScoreIs.incrementing) {
         _incrementCounter();
       }
     });
@@ -29,14 +29,14 @@ class _ScoreState extends State<Score> {
     setState(() {
       counter++;
     });
-    widget.eventController.sink.add(ScoreIs.CHANGED);
+    widget.eventController.sink.add(ScoreIs.changed);
   }
 
   void _decrementCounter() {
     setState(() {
       counter--;
     });
-    widget.eventController.sink.add(ScoreIs.CHANGED);
+    widget.eventController.sink.add(ScoreIs.changed);
   }
 
   @override
