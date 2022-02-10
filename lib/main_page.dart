@@ -8,7 +8,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
   int _counter = 0;
   int _left_count = 0;
   int _right_count = 0;
-  TimerState _timer_state = TimerState.paused;
+  TimerIs _timer_state = TimerIs.paused;
   Duration _max_time = Duration(minutes: 0, seconds: 20);
   late Timer _timer;
   Stopwatch _stopwatch = Stopwatch();
@@ -21,19 +21,19 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
         vsync: this, duration: const Duration(milliseconds: 250));
   }
 
-  IconData getTimerIconForTimerState(TimerState timer_state) {
+  IconData getTimerIconForTimerState(TimerIs timer_state) {
     IconData ret_icon;
     switch (timer_state) {
-      case TimerState.none:
+      case TimerIs.none:
         ret_icon = Icons.question_mark;
         break;
-      case TimerState.finished:
+      case TimerIs.finished:
         ret_icon = Icons.restore;
         break;
-      case TimerState.paused:
+      case TimerIs.paused:
         ret_icon = Icons.play_arrow;
         break;
-      case TimerState.running:
+      case TimerIs.running:
         ret_icon = Icons.pause;
         break;
       default:
@@ -94,11 +94,11 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
   /* Pauses timer if and only if it is running */
   void safePauseTimer() {
     setState(() {
-      if (_timer_state != TimerState.running) {
+      if (_timer_state != TimerIs.running) {
         return;
       }
       myTimerAnimation.reverse();
-      _timer_state = TimerState.paused;
+      _timer_state = TimerIs.paused;
       _stopwatch.stop();
       _timer.cancel();
     });
@@ -107,16 +107,16 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
   void _handleTimer() {
     setState(() {
       switch (_timer_state) {
-        case TimerState.none:
+        case TimerIs.none:
           break;
-        case TimerState.finished:
-          _timer_state = TimerState.paused;
+        case TimerIs.finished:
+          _timer_state = TimerIs.paused;
           _stopwatch.reset();
           _timer.cancel();
           break;
-        case TimerState.paused:
+        case TimerIs.paused:
           myTimerAnimation.forward();
-          _timer_state = TimerState.running;
+          _timer_state = TimerIs.running;
           _stopwatch.start();
           Duration period = Duration(seconds: 1);
           if (getElapsedFromMaxTime() <= Duration(seconds: 10)) {
@@ -131,7 +131,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
                   timer.cancel();
                   setState(() {
                     _stopwatch.stop();
-                    _timer_state = TimerState.finished;
+                    _timer_state = TimerIs.finished;
                   });
                 }
                 setState(() {});
@@ -141,7 +141,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
             setState(() {});
           });
           break;
-        case TimerState.running:
+        case TimerIs.running:
           safePauseTimer();
           break;
         default:
@@ -179,6 +179,9 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    Score leftScore = Score(key: const Key("Left"));
+    Score rightScore = Score(key: const Key("Right"));
+
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
     //
@@ -217,25 +220,20 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
-                  Score(
-                    counter: _left_count,
-                    incrementCounter: _incrementLeftCount,
-                    decrementCounter: _decrementLeftCount,
-                    key: const Key("1"),
-                  ),
+                  leftScore,
                   Text('-', style: Theme.of(context).textTheme.headline4),
-                  Score(
-                    counter: _right_count,
-                    incrementCounter: _incrementRightCount,
-                    decrementCounter: _decrementRightCount,
-                    key: const Key("2"),
-                  ),
+                  rightScore,
                 ],
               ),
             ),
             // todo: style and size this better
             ElevatedButton(
-              onPressed: () => {_incrementLeftCount(), _incrementRightCount()},
+              onPressed: () => {
+                setState(() {
+                  leftScore.increment();
+                  rightScore.increment();
+                })
+              },
               child: const Text("Double"),
             ),
             GestureDetector(

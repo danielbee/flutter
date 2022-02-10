@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class TimerState extends State<Timer> {
+/*class TimerState extends State<Timer> {
   void build() {}
 }
 
-class Timer extends StatefulWidget {}
+class Timer extends StatefulWidget {}*/
