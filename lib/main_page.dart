@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '_enums/timer_state.dart';
+import '_enums/score_is.dart';
 import 'dart:ui';
 import 'dart:async';
 import 'atoms/score.dart';
@@ -12,6 +13,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
   Duration _max_time = Duration(minutes: 0, seconds: 20);
   late Timer _timer;
   Stopwatch _stopwatch = Stopwatch();
+  StreamController<ScoreIs> scoreController = StreamController();
 
   late AnimationController myTimerAnimation;
   @override
@@ -218,17 +220,13 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   Score(
-                    counter: _left_count,
-                    incrementCounter: _incrementLeftCount,
-                    decrementCounter: _decrementLeftCount,
-                    key: const Key("1"),
+                    eventController: scoreController,
+                    key: const Key("Left"),
                   ),
                   Text('-', style: Theme.of(context).textTheme.headline4),
                   Score(
-                    counter: _right_count,
-                    incrementCounter: _incrementRightCount,
-                    decrementCounter: _decrementRightCount,
-                    key: const Key("2"),
+                    eventController: scoreController,
+                    key: const Key("Right"),
                   ),
                 ],
               ),
