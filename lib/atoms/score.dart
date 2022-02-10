@@ -29,12 +29,14 @@ class _ScoreState extends State<Score> {
     setState(() {
       counter++;
     });
+    widget.eventController.sink.add(ScoreIs.CHANGED);
   }
 
   void _decrementCounter() {
     setState(() {
       counter--;
     });
+    widget.eventController.sink.add(ScoreIs.CHANGED);
   }
 
   @override

@@ -4,6 +4,7 @@ import '_enums/score_is.dart';
 import 'dart:ui';
 import 'dart:async';
 import 'atoms/score.dart';
+import 'atoms/timer.dart';
 
 class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
   int _counter = 0;
@@ -13,7 +14,8 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
   Duration _max_time = Duration(minutes: 0, seconds: 20);
   late Timer _timer;
   Stopwatch _stopwatch = Stopwatch();
-  StreamController<ScoreIs> scoreController = StreamController();
+  StreamController<ScoreIs> scoreController =
+      StreamController<ScoreIs>.broadcast();
 
   late AnimationController myTimerAnimation;
   @override
@@ -239,24 +241,11 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
             ),
             // todo: style and size this better
             ElevatedButton(
-              onPressed: () => {_incrementLeftCount(), _incrementRightCount()},
+              onPressed: () => {scoreController.sink.add(ScoreIs.INCREMENTING)},
               child: const Text("Double"),
             ),
-            GestureDetector(
-              onTap: _handleTimer,
-              onLongPress: () => {_triggerSetTimer(context)},
-              //onSecondaryTap: _triggerSetTimer,
-              child: Text(
-                getFormattedTime(),
-                style: Theme.of(context)
-                    .textTheme
-                    .headline1!
-                    .merge(const TextStyle(fontFeatures: [
-                      FontFeature
-                          .tabularFigures(), // Ensure equal spacing between numbers  https://stackoverflow.com/a/60132909
-                    ])),
-              ),
-            ),
+            FencingTimer(
+                key: const Key("Timer"), scoreController: scoreController)
           ],
         ),
       ),
