@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../enums/timer_state.dart';
+import '_enums/timer_state.dart';
+import '_enums/score_is.dart';
 import 'dart:ui';
 import 'dart:async';
 import 'atoms/score.dart';
@@ -12,13 +13,19 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
   Duration _max_time = Duration(minutes: 0, seconds: 20);
   late Timer _timer;
   Stopwatch _stopwatch = Stopwatch();
-
+  StreamController<ScoreIs> eventController = StreamController<ScoreIs>();
   late AnimationController myTimerAnimation;
   @override
   void initState() {
     super.initState();
     myTimerAnimation = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 250));
+  }
+
+  @override
+  void dispose() {
+    eventController.close();
+    super.dispose();
   }
 
   IconData getTimerIconForTimerState(TimerIs timer_state) {
@@ -179,8 +186,10 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    Score leftScore = Score(key: const Key("Left"));
-    Score rightScore = Score(key: const Key("Right"));
+    Score leftScore =
+        Score(key: const Key("Left"), eventController: eventController);
+    Score rightScore =
+        Score(key: const Key("Right"), eventController: eventController);
 
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
@@ -230,8 +239,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
             ElevatedButton(
               onPressed: () => {
                 setState(() {
-                  leftScore.increment();
-                  rightScore.increment();
+                  eventController.sink.add(ScoreIs.INCREMENTING);
                 })
               },
               child: const Text("Double"),
