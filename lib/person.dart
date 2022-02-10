@@ -4,7 +4,8 @@
 import 'package:flutter/material.dart';
 
 class PersonWidget extends StatefulWidget {
-  const PersonWidget({ Key? key, required this.getName, required this.updateName }) : super(key: key);
+  const PersonWidget({ Key? key, required this.defaultName, required this.getName, required this.updateName }) : super(key: key);
+  final String defaultName;
   final Function getName;
   final Function updateName;
 
@@ -15,10 +16,13 @@ class PersonWidget extends StatefulWidget {
 class _PersonWidgetState extends State<PersonWidget> {
   //late Widget _personNameWidget; // changes to TextField or dropdown after long press
   final nameController = TextEditingController();
-  String name = "Fencer";
+  late String _name;
+  bool _focussed = false;
+  bool _hover = false;
   @override 
   void initState(){ 
     super.initState();
+    _name = widget.defaultName;
     nameController.addListener(() => setState(() {}));
   }
 
@@ -34,29 +38,57 @@ class _PersonWidgetState extends State<PersonWidget> {
       child : Row(
         
         children: [
-            SizedBox( width:name.length.toDouble() < 10 ? 200 : name.length.toDouble()*10.0, 
+            SizedBox(width: 200, 
               child:
-                TextField(
-                  controller: nameController,
-                  decoration: InputDecoration(
-                    hintText: name,
-                    labelText: "Name",
-                    prefixIcon: Icon(Icons.person),
-                    // icon: Icon(Icons.mail),
-                    suffixIcon: nameController.text.isEmpty
-                        ? Container(width: 0)
-                        : IconButton(
-                            icon: Icon(Icons.close),
-                            onPressed: () => nameController.clear(),
-                          ),
-                    border: OutlineInputBorder(),
-                  ),
-                  onChanged: (text) { setState(() {
-                    name = text;
-                  });},
-                  onSubmitted: (text){ print("Name is $text");},
-                  
-                )
+              MouseRegion(
+                onEnter: (event){
+                  print("hover $event"); 
+                  setState(() {_hover = true; });
+                   },
+                onExit: (event){
+                  print("leave hover $event"); 
+                  setState(() {_hover = false; });
+                   },
+                child:
+                Focus(
+                  onFocusChange: (hasFocus) { 
+                    if (hasFocus) { 
+                      print("editing the name");
+                      setState(() {
+                        _focussed = true;
+                        
+                      });
+                    } else { 
+                      print("Finished editing the name");
+                      setState(() {
+                        _focussed = false;
+                      });
+                    }
+                  },
+                  child: 
+                    TextField(
+                      controller: nameController,
+                      decoration: InputDecoration(
+                        hintText: _name,
+                        labelText: _focussed ? "Name" : null ,
+                        prefixIcon: Icon(Icons.person),
+                        // icon: Icon(Icons.mail),
+                        suffixIcon: _focussed || _hover ? nameController.text.isEmpty
+                            ? Container(width: 0)
+                            : IconButton(
+                                icon: Icon(Icons.close),
+                                onPressed: () {nameController.clear(); _name = widget.defaultName;},
+                              )
+                            : null,
+                        border: OutlineInputBorder(borderSide: _focussed ? BorderSide(): _hover ? BorderSide(color: Colors.black12):  BorderSide.none),
+                      ),
+                      onChanged: (text) { setState(() {
+                        _name = text;
+                      });},
+                      onSubmitted: (text){ print("Name is $text");},
+
+                    )
+                ))
               )
           //GestureDetector(
           //  child: _personNameWidget, 

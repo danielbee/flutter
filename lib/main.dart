@@ -309,8 +309,8 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
               Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
-                  PersonWidget(getName: _getPersonLeft, updateName: _updatePersonLeft),
-                  PersonWidget(getName: _getPersonRight,updateName: _updatePersonRight),
+                  PersonWidget(defaultName: "Fencer A", getName: _getPersonLeft, updateName: _updatePersonLeft),
+                  PersonWidget(defaultName: "Fencer B", getName: _getPersonRight,updateName: _updatePersonRight),
                 ],
               ),
               Column(
