@@ -2,10 +2,12 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'person.dart';
 
 void main() {
   runApp(const MyApp());
 }
+
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
@@ -49,6 +51,7 @@ class MyHomePage extends StatefulWidget {
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
+
 class MyScore extends StatefulWidget{ 
   final int counter;
   
@@ -96,6 +99,8 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   Duration _max_time = Duration(minutes: 0, seconds: 20);
   late Timer _timer;
   Stopwatch _stopwatch = Stopwatch();
+  String _personLeft = "Fencer A";
+  String _personRight = "Fencer B";
 
   late AnimationController myTimerAnimation;
   @override 
@@ -165,6 +170,20 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
       _right_count--;
     });
   }
+  
+  String _getPersonLeft() { 
+    return _personLeft;
+  }
+  String _getPersonRight() { 
+    return _personRight;
+  }
+  void _updatePersonLeft(String newName) { 
+    _personLeft = newName;
+  }
+  void _updatePersonRight(String newName) { 
+    _personRight = newName;
+  }
+
 
   void _handleTimer() { 
     
@@ -266,66 +285,78 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
       body: Center(
         // Center is a layout widget. It takes a single child and positions it
         // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Padding(
-              // todo: https://stackoverflow.com/a/65273656
-              padding: const EdgeInsets.fromLTRB(30.0, 4.0, 30.0, 4.0),
-              child:
-                Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    MyScore(counter: _left_count, incrementCounter: _incrementLeftCount, decrementCounter: _decrementLeftCount, key: const Key("1"),),
+        child: Padding(
+          // todo: https://stackoverflow.com/a/65273656
+          padding: const EdgeInsets.fromLTRB(30.0, 4.0, 30.0, 4.0),
+          child: Column(
+            // Column is also a layout widget. It takes a list of children and
+            // arranges them vertically. By default, it sizes itself to fit its
+            // children horizontally, and tries to be as tall as its parent.
+            //
+            // Invoke "debug painting" (press "p" in the console, choose the
+            // "Toggle Debug Paint" action from the Flutter Inspector in Android
+            // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
+            // to see the wireframe for each widget.
+            //
+            // Column has various properties to control how it sizes itself and
+            // how it positions its children. Here we use mainAxisAlignment to
+            // center the children vertically; the main axis here is the vertical
+            // axis because Columns are vertical (the cross axis would be
+            // horizontal).
+            mainAxisAlignment: MainAxisAlignment.center,
 
-                    Text('-', 
-                    style: Theme.of(context).textTheme.headline4), 
-                    MyScore(counter: _right_count, incrementCounter: _incrementRightCount, decrementCounter: _decrementRightCount, key: const Key("2"),),
-                  ],
-                ),
-            ),
-            // todo: style and size this better
-            ElevatedButton(
-              onPressed: () => {
-                _incrementLeftCount(),
-                _incrementRightCount()
-              }, 
-              child: const Text("Double"), 
-            ),
-            GestureDetector(
-              onTap:_handleTimer,
-              onLongPress: () => {
-                _triggerSetTimer(context)
-              },
-              //onSecondaryTap: _triggerSetTimer,
-              child:
-                  Text(
-                  getFormattedTime(),
-                  style: Theme.of(context).textTheme.headline1!.merge(
-                      const TextStyle(
-                        fontFeatures: [
-                          FontFeature.tabularFigures(), // Ensure equal spacing between numbers  https://stackoverflow.com/a/60132909
-                        ]
-                      )
-                    ),
-                ),
-            ),
-        
-          ],
+            children: <Widget>[
+              Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  PersonWidget(getName: _getPersonLeft, updateName: _updatePersonLeft),
+                  PersonWidget(getName: _getPersonRight,updateName: _updatePersonRight),
+                ],
+              ),
+              Column(
+                children: <Widget>[
+
+                  Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      MyScore(counter: _left_count, incrementCounter: _incrementLeftCount, decrementCounter: _decrementLeftCount, key: const Key("1"),),
+
+                      Text('-', 
+                      style: Theme.of(context).textTheme.headline4), 
+                      MyScore(counter: _right_count, incrementCounter: _incrementRightCount, decrementCounter: _decrementRightCount, key: const Key("2"),),
+                    ],
+                  ),
+                  // todo: style and size this better
+                  ElevatedButton(
+                    onPressed: () => {
+                      _incrementLeftCount(),
+                      _incrementRightCount()
+                    }, 
+                    child: const Text("Double"), 
+                  ),
+                  ]
+              ),
+              GestureDetector(
+                onTap:_handleTimer,
+                onLongPress: () => {
+                  _triggerSetTimer(context)
+                },
+                //onSecondaryTap: _triggerSetTimer,
+                child:
+                    Text(
+                    getFormattedTime(),
+                    style: Theme.of(context).textTheme.headline1!.merge(
+                        const TextStyle(
+                          fontFeatures: [
+                            FontFeature.tabularFigures(), // Ensure equal spacing between numbers  https://stackoverflow.com/a/60132909
+                          ]
+                        )
+                      ),
+                  ),
+              ),
+
+            ],
+          ),
         ),
       ),
       floatingActionButton: FloatingActionButton(
