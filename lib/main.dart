@@ -49,45 +49,40 @@ class MyHomePage extends StatefulWidget {
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
-class MyScore extends StatefulWidget{ 
+
+class MyScore extends StatefulWidget {
   final int counter;
-  
+
   final VoidCallback decrementCounter;
   final VoidCallback incrementCounter;
-  MyScore({
-    required Key key,
-    required this.counter,
-    required this.incrementCounter,
-    required this.decrementCounter
-  }) : super(key: key);
-  @override 
+  MyScore(
+      {required Key key,
+      required this.counter,
+      required this.incrementCounter,
+      required this.decrementCounter})
+      : super(key: key);
+  @override
   _MyScoreState createState() => _MyScoreState();
 }
-class _MyScoreState extends State<MyScore> { 
-  void _onPressed() { 
-    
-  }
-  @override 
-  Widget build(BuildContext context) { 
-    return 
-      GestureDetector(
-        onTap:() => widget.incrementCounter(),
-        onLongPress: () => widget.decrementCounter(),
-        onSecondaryTap: ()=> widget.decrementCounter(),
-        child:
-          Text(
-            '${widget.counter}',
-            style: Theme.of(context).textTheme.headline2,
-          ),
-      );
+
+class _MyScoreState extends State<MyScore> {
+  void _onPressed() {}
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => widget.incrementCounter(),
+      onLongPress: () => widget.decrementCounter(),
+      onSecondaryTap: () => widget.decrementCounter(),
+      child: Text(
+        '${widget.counter}',
+        style: Theme.of(context).textTheme.headline2,
+      ),
+    );
   }
 }
-enum TimerState {
-   none, 
-   running, 
-   paused, 
-   finished 
-}
+
+enum TimerState { none, running, paused, finished }
+
 class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   int _counter = 0;
   int _left_count = 0;
@@ -98,24 +93,26 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   Stopwatch _stopwatch = Stopwatch();
 
   late AnimationController myTimerAnimation;
-  @override 
-  void initState(){ 
+  @override
+  void initState() {
     super.initState();
-    myTimerAnimation = AnimationController(vsync: this, duration: const Duration(milliseconds: 250));
+    myTimerAnimation = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 250));
   }
-  IconData getTimerIconForTimerState(TimerState timer_state) { 
+
+  IconData getTimerIconForTimerState(TimerState timer_state) {
     IconData ret_icon;
     switch (timer_state) {
       case TimerState.none:
-        ret_icon =  Icons.question_mark;
+        ret_icon = Icons.question_mark;
         break;
-      case TimerState.finished: 
+      case TimerState.finished:
         ret_icon = Icons.restore;
         break;
       case TimerState.paused:
         ret_icon = Icons.play_arrow;
         break;
-      case TimerState.running: 
+      case TimerState.running:
         ret_icon = Icons.pause;
         break;
       default:
@@ -124,6 +121,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     }
     return ret_icon;
   }
+
   void _incrementLeftCount() {
     setState(() {
       // This call to setState tells the Flutter framework that something has
@@ -132,8 +130,10 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
       // _counter without calling setState(), then the build method would not be
       // called again, and so nothing would appear to happen.
       _left_count++;
+      safePauseTimer();
     });
   }
+
   void _incrementRightCount() {
     setState(() {
       // This call to setState tells the Flutter framework that something has
@@ -142,9 +142,10 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
       // _counter without calling setState(), then the build method would not be
       // called again, and so nothing would appear to happen.
       _right_count++;
+      safePauseTimer();
     });
   }
-  
+
   void _decrementLeftCount() {
     setState(() {
       // This call to setState tells the Flutter framework that something has
@@ -153,8 +154,10 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
       // _counter without calling setState(), then the build method would not be
       // called again, and so nothing would appear to happen.
       _left_count--;
+      safePauseTimer();
     });
   }
+
   void _decrementRightCount() {
     setState(() {
       // This call to setState tells the Flutter framework that something has
@@ -163,16 +166,29 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
       // _counter without calling setState(), then the build method would not be
       // called again, and so nothing would appear to happen.
       _right_count--;
+      safePauseTimer();
     });
   }
 
-  void _handleTimer() { 
-    
+  /* Pauses timer if and only if it is running */
+  void safePauseTimer() {
+    setState(() {
+      if (_timer_state != TimerState.running) {
+        return;
+      }
+      myTimerAnimation.reverse();
+      _timer_state = TimerState.paused;
+      _stopwatch.stop();
+      _timer.cancel();
+    });
+  }
+
+  void _handleTimer() {
     setState(() {
       switch (_timer_state) {
         case TimerState.none:
           break;
-        case TimerState.finished: 
+        case TimerState.finished:
           _timer_state = TimerState.paused;
           _stopwatch.reset();
           _timer.cancel();
@@ -181,55 +197,46 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
           myTimerAnimation.forward();
           _timer_state = TimerState.running;
           _stopwatch.start();
-          Duration period = Duration(seconds:1);
-          if (getElapsedFromMaxTime() <= Duration(seconds:10)){ 
+          Duration period = Duration(seconds: 1);
+          if (getElapsedFromMaxTime() <= Duration(seconds: 10)) {
             period = Duration(milliseconds: 1);
           }
-          _timer = new Timer.periodic(period, (timer) { 
-              //something 
-              if (getElapsedFromMaxTime() <= Duration(seconds:10)){ 
-                _timer.cancel();
-                _timer = new Timer.periodic(
-                  Duration(milliseconds: 1), (timer) { 
-                    if (getElapsedFromMaxTime() <= Duration(seconds:0)){
-                      
-                      timer.cancel();
-                      setState(() {
-                        _stopwatch.stop();
-                        _timer_state = TimerState.finished;
-                      });
-                    }
-                    setState(() {});
-                  }
-                );
-              }
+          _timer = new Timer.periodic(period, (timer) {
+            //something
+            if (getElapsedFromMaxTime() <= Duration(seconds: 10)) {
+              _timer.cancel();
+              _timer = new Timer.periodic(Duration(milliseconds: 1), (timer) {
+                if (getElapsedFromMaxTime() <= Duration(seconds: 0)) {
+                  timer.cancel();
+                  setState(() {
+                    _stopwatch.stop();
+                    _timer_state = TimerState.finished;
+                  });
+                }
+                setState(() {});
+              });
+            }
 
-          setState(() {}); 
+            setState(() {});
           });
           break;
-        case TimerState.running: 
-          myTimerAnimation.reverse();
-          _timer_state = TimerState.paused;
-          _stopwatch.stop();
-          _timer.cancel();
+        case TimerState.running:
+          safePauseTimer();
           break;
         default:
           break;
-    }
-      
+      }
     });
-
   }
 
-  void _triggerSetTimer(context) async { 
+  void _triggerSetTimer(context) async {
     print("time is $_max_time");
     // TODO: extend TimePicker and TimeOfDay better suit requirements (90 minute match)
     TimeOfDay currentTime = TimeOfDay(
-        hour: getElapsedFromMaxTime().inMinutes, 
-        minute: getElapsedFromMaxTime().inSeconds.remainder(60)
-      );
+        hour: getElapsedFromMaxTime().inMinutes,
+        minute: getElapsedFromMaxTime().inSeconds.remainder(60));
     TimeOfDay? chosenTime = await showTimePicker(
-      context: context, 
+      context: context,
       initialTime: currentTime,
       builder: (BuildContext context, Widget? child) {
         return MediaQuery(
@@ -240,11 +247,11 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
       hourLabelText: "Minute",
       minuteLabelText: "Second",
     );
-    if (chosenTime != null && chosenTime != currentTime) { 
+    if (chosenTime != null && chosenTime != currentTime) {
       setState(() {
-        _max_time = Duration(minutes: chosenTime.hour, seconds: chosenTime.minute);
+        _max_time =
+            Duration(minutes: chosenTime.hour, seconds: chosenTime.minute);
         _stopwatch.reset();
-
       });
     }
   }
@@ -286,69 +293,74 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
             Padding(
               // todo: https://stackoverflow.com/a/65273656
               padding: const EdgeInsets.fromLTRB(30.0, 4.0, 30.0, 4.0),
-              child:
-                Row(
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    MyScore(counter: _left_count, incrementCounter: _incrementLeftCount, decrementCounter: _decrementLeftCount, key: const Key("1"),),
-
-                    Text('-', 
-                    style: Theme.of(context).textTheme.headline4), 
-                    MyScore(counter: _right_count, incrementCounter: _incrementRightCount, decrementCounter: _decrementRightCount, key: const Key("2"),),
-                  ],
-                ),
+                children: <Widget>[
+                  MyScore(
+                    counter: _left_count,
+                    incrementCounter: _incrementLeftCount,
+                    decrementCounter: _decrementLeftCount,
+                    key: const Key("1"),
+                  ),
+                  Text('-', style: Theme.of(context).textTheme.headline4),
+                  MyScore(
+                    counter: _right_count,
+                    incrementCounter: _incrementRightCount,
+                    decrementCounter: _decrementRightCount,
+                    key: const Key("2"),
+                  ),
+                ],
+              ),
             ),
             // todo: style and size this better
             ElevatedButton(
-              onPressed: () => {
-                _incrementLeftCount(),
-                _incrementRightCount()
-              }, 
-              child: const Text("Double"), 
+              onPressed: () => {_incrementLeftCount(), _incrementRightCount()},
+              child: const Text("Double"),
             ),
             GestureDetector(
-              onTap:_handleTimer,
-              onLongPress: () => {
-                _triggerSetTimer(context)
-              },
+              onTap: _handleTimer,
+              onLongPress: () => {_triggerSetTimer(context)},
               //onSecondaryTap: _triggerSetTimer,
-              child:
-                  Text(
-                  getFormattedTime(),
-                  style: Theme.of(context).textTheme.headline1!.merge(
-                      const TextStyle(
-                        fontFeatures: [
-                          FontFeature.tabularFigures(), // Ensure equal spacing between numbers  https://stackoverflow.com/a/60132909
-                        ]
-                      )
-                    ),
-                ),
+              child: Text(
+                getFormattedTime(),
+                style: Theme.of(context)
+                    .textTheme
+                    .headline1!
+                    .merge(const TextStyle(fontFeatures: [
+                      FontFeature
+                          .tabularFigures(), // Ensure equal spacing between numbers  https://stackoverflow.com/a/60132909
+                    ])),
+              ),
             ),
-        
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _handleTimer,
         tooltip: 'Increment',
-        child: AnimatedIcon(icon: AnimatedIcons.play_pause, progress: myTimerAnimation,),
+        child: AnimatedIcon(
+          icon: AnimatedIcons.play_pause,
+          progress: myTimerAnimation,
+        ),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
-  Duration getElapsedFromMaxTime(){ 
-    Duration milliseconds_elapsed = Duration(milliseconds: _stopwatch.elapsedMilliseconds);
+
+  Duration getElapsedFromMaxTime() {
+    Duration milliseconds_elapsed =
+        Duration(milliseconds: _stopwatch.elapsedMilliseconds);
     Duration elapsed_from_max_time = _max_time - milliseconds_elapsed;
     return elapsed_from_max_time;
   }
-  String getFormattedTime(){
+
+  String getFormattedTime() {
     Duration elapsed_from_max_time = getElapsedFromMaxTime();
-    if ((elapsed_from_max_time) >= Duration(seconds: 10)){    
+    if ((elapsed_from_max_time) >= Duration(seconds: 10)) {
       return "${elapsed_from_max_time.inMinutes}:${elapsed_from_max_time.inSeconds.remainder(60).toString().padLeft(2, '0')}";
-    } else if (elapsed_from_max_time > Duration(seconds: 0)) { 
+    } else if (elapsed_from_max_time > Duration(seconds: 0)) {
       return "${elapsed_from_max_time.inSeconds.remainder(60)}.${elapsed_from_max_time.inMilliseconds.remainder(1000).toString().padLeft(3, '0')}";
-    } else { 
+    } else {
       return "0";
     }
   }
-
 }
