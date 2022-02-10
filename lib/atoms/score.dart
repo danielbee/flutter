@@ -1,49 +1,51 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
+
 import '../_enums/score_is.dart';
 
-class ScoreState extends State<Score> {
-  int score = 0;
+class _ScoreState extends State<Score> {
+  int counter = 0;
   var eventSubscription;
+
   @override
   void initState() {
     super.initState();
     eventSubscription =
         widget.eventController.stream.asBroadcastStream().listen((event) {
-      if (event == ScoreIs.INCREMENTING) {
-        incrementScore();
-        widget.eventController.sink.add(ScoreIs.INCREMENTED);
+      if (event == ScoreIs.incrementing) {
+        _incrementCounter();
       }
     });
   }
 
   @override
   void dispose() {
-    this.eventSubscription.cancel();
+    eventSubscription.cancel();
     super.dispose();
   }
 
-  void incrementScore() {
+  void _incrementCounter() {
     setState(() {
-      score += 1;
+      counter++;
     });
+    widget.eventController.sink.add(ScoreIs.changed);
   }
 
-  void decrementScore() {
+  void _decrementCounter() {
     setState(() {
-      score -= 1;
+      counter--;
     });
+    widget.eventController.sink.add(ScoreIs.changed);
   }
 
-  //needed to call methods from outside i think???
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => {incrementScore()},
-      onLongPress: () => {decrementScore()},
-      onSecondaryTap: () => {decrementScore()},
+      onTap: () => _incrementCounter(),
+      onLongPress: () => _decrementCounter(),
+      onSecondaryTap: () => _decrementCounter(),
       child: Text(
-        '$score',
+        '$counter',
         style: Theme.of(context).textTheme.headline2,
       ),
     );
@@ -52,8 +54,8 @@ class ScoreState extends State<Score> {
 
 class Score extends StatefulWidget {
   final StreamController<ScoreIs> eventController;
-  Score({required Key key, required this.eventController}) : super(key: key);
-
+  const Score({required Key key, required this.eventController})
+      : super(key: key);
   @override
-  ScoreState createState() => ScoreState();
+  _ScoreState createState() => _ScoreState();
 }

@@ -1,1 +1,1 @@
-enum ScoreIs { INCREMENTING, INCREMENTED, UNCHANGING }
+enum ScoreIs { incrementing, changed, unchanging }
