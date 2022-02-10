@@ -6,6 +6,24 @@ import '../_enums/score_is.dart';
 class _ScoreState extends State<Score> {
   int counter = 0;
   void _onPressed() {}
+  var eventSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    eventSubscription =
+        widget.eventController.stream.asBroadcastStream().listen((event) {
+      if (event == ScoreIs.INCREMENTING) {
+        _incrementCounter();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    this.eventSubscription.cancel();
+    super.dispose();
+  }
 
   void _incrementCounter() {
     setState(() {

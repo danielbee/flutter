@@ -23,6 +23,12 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
         vsync: this, duration: const Duration(milliseconds: 250));
   }
 
+  @override
+  void dispose() {
+    scoreController.close();
+    super.dispose();
+  }
+
   IconData getTimerIconForTimerState(TimerIs timer_state) {
     IconData ret_icon;
     switch (timer_state) {
