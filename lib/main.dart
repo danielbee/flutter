@@ -92,13 +92,28 @@ enum TimerState {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
+
+  static const initialtime = Duration(minutes: 0, seconds: 20);
+
   var _score = { 
     "right" : 0, 
     "left" : 0,
   };
 
+  // Initialise scoreHistory with defaults. 
+  // TODO, deal with weird user behaviour like logging some points, resetting the time and then logging some more points.
+  var _scoreHistory = [
+    {
+      "score": { 
+        "right" : 0, 
+        "left" : 0,
+      },
+      "time": initialtime,
+    },
+  ];
+
   TimerState _timer_state = TimerState.paused;
-  Duration _max_time = Duration(minutes: 0, seconds: 20);
+  Duration _max_time = initialtime;
   late Timer _timer;
   Stopwatch _stopwatch = Stopwatch();
 
@@ -222,6 +237,14 @@ class _MyHomePageState extends State<MyHomePage> {
   void _handleScoreChange(action, key){ 
     _pauseTimer();
     _changeScore(action, key);
+    setState(() {
+      _scoreHistory.add({
+        "score" : _score, 
+        "time" : getElapsedFromMaxTime(),
+      });
+      
+    });
+    print(_scoreHistory);
   }
   void _changeScore(action, key){ 
     switch (action) {
@@ -242,7 +265,13 @@ class _MyHomePageState extends State<MyHomePage> {
       _score[key] = 0;
     });
   }
-
+  Widget _genScoreWidget(String key) { 
+    return MyScore(
+      counter: _score[key]!, 
+      incrementCounter: () => _handleScoreChange("increment", key),
+      decrementCounter: () => _handleScoreChange("decrement", key), 
+      key:  Key( key),);
+  }
   @override
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
@@ -268,11 +297,9 @@ class _MyHomePageState extends State<MyHomePage> {
                 Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
-                    MyScore(counter: _score["left"]!, incrementCounter: () => _handleScoreChange("increment", "left"),decrementCounter: () => _handleScoreChange("decrement", "left"), key: const Key("left"),),
-
+                    _genScoreWidget("left"),
                     Text('-', style: Theme.of(context).textTheme.headline4), 
-                    MyScore(counter: _score["right"]!, incrementCounter: () => _handleScoreChange("increment", "right"),decrementCounter: () => _handleScoreChange("decrement", "right"), key: const Key("right"),),
-                  ],
+                    _genScoreWidget("right"),                  ],
                 ),
             ),
             // todo: style and size this better
