@@ -90,7 +90,7 @@ enum TimerState {
 }
 
 
-class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
+class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
   var _score = { 
     "right" : 0, 
@@ -102,12 +102,6 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   late Timer _timer;
   Stopwatch _stopwatch = Stopwatch();
 
-  late AnimationController myTimerAnimation;
-  @override 
-  void initState(){ 
-    super.initState();
-    myTimerAnimation = AnimationController(vsync: this, duration: const Duration(milliseconds: 250));
-  }
   IconData getTimerIconForTimerState(TimerState timer_state) { 
     IconData ret_icon;
     switch (timer_state) {
@@ -152,7 +146,6 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
           _timer.cancel();
           break;
         case TimerState.paused:
-          myTimerAnimation.forward();
           _timer_state = TimerState.running;
           _stopwatch.start();
           Duration period = Duration(seconds:1);
@@ -193,7 +186,6 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   }
   void _pauseTimer(){ 
     if (_timer_state == TimerState.running) {
-      myTimerAnimation.reverse();
       _timer_state = TimerState.paused;
       _stopwatch.stop();
       _timer.cancel();
@@ -316,7 +308,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
       floatingActionButton: FloatingActionButton(
         onPressed: _handleTimer,
         tooltip: 'Increment',
-        child: AnimatedIcon(icon: AnimatedIcons.play_pause, progress: myTimerAnimation,),
+        child: Icon(getTimerIconForTimerState(_timer_state)),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
@@ -327,6 +319,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   }
   String getFormattedTime(){
     Duration elapsed_from_max_time = getElapsedFromMaxTime();
+    // Format the time differently in the last ten seconds. 
     if ((elapsed_from_max_time) >= Duration(seconds: 10)){    
       return "${elapsed_from_max_time.inMinutes}:${elapsed_from_max_time.inSeconds.remainder(60).toString().padLeft(2, '0')}";
     } else if (elapsed_from_max_time > Duration(seconds: 0)) { 
