@@ -88,10 +88,15 @@ enum TimerState {
    paused, 
    finished 
 }
+
+
 class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   int _counter = 0;
-  int _left_count = 0;
-  int _right_count = 0;
+  var _score = { 
+    "right" : 0, 
+    "left" : 0,
+  };
+
   TimerState _timer_state = TimerState.paused;
   Duration _max_time = Duration(minutes: 0, seconds: 20);
   late Timer _timer;
@@ -124,45 +129,14 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     }
     return ret_icon;
   }
-  void _incrementLeftCount() {
+  void _incrementScore(key) {
     setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _left_count++;
+     _score[key] = _score[key]! + 1;
     });
   }
-  void _incrementRightCount() {
+  void _decrementScore(key) {
     setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _right_count++;
-    });
-  }
-  
-  void _decrementLeftCount() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _left_count--;
-    });
-  }
-  void _decrementRightCount() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _right_count--;
+     _score[key] = _score[key]! - 1;
     });
   }
 
@@ -264,23 +238,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
         title: Text(widget.title),
       ),
       body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
         child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Padding(
@@ -290,19 +248,18 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                 Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
-                    MyScore(counter: _left_count, incrementCounter: _incrementLeftCount, decrementCounter: _decrementLeftCount, key: const Key("1"),),
+                    MyScore(counter: _score["left"]!, incrementCounter: () => _incrementScore("left"),decrementCounter: () => _decrementScore("left"), key: const Key("1"),),
 
-                    Text('-', 
-                    style: Theme.of(context).textTheme.headline4), 
-                    MyScore(counter: _right_count, incrementCounter: _incrementRightCount, decrementCounter: _decrementRightCount, key: const Key("2"),),
+                    Text('-', style: Theme.of(context).textTheme.headline4), 
+                    MyScore(counter: _score["right"]!, incrementCounter: () => _incrementScore("right"),decrementCounter: () => _decrementScore("right"), key: const Key("2"),),
                   ],
                 ),
             ),
             // todo: style and size this better
             ElevatedButton(
               onPressed: () => {
-                _incrementLeftCount(),
-                _incrementRightCount()
+                _incrementScore("left"),
+                _incrementScore("right")
               }, 
               child: const Text("Double"), 
             ),
