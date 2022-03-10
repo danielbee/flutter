@@ -182,10 +182,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
           });
           break;
         case TimerState.running: 
-          myTimerAnimation.reverse();
-          _timer_state = TimerState.paused;
-          _stopwatch.stop();
-          _timer.cancel();
+          _pauseTimer();
           break;
         default:
           break;
@@ -193,6 +190,14 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
       
     });
 
+  }
+  void _pauseTimer(){ 
+    if (_timer_state == TimerState.running) {
+      myTimerAnimation.reverse();
+      _timer_state = TimerState.paused;
+      _stopwatch.stop();
+      _timer.cancel();
+    }
   }
 
   void _triggerSetTimer(context) async { 
@@ -222,6 +227,29 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
       });
     }
   }
+  void _handleScoreChange(action, key){ 
+    _pauseTimer();
+    _changeScore(action, key);
+  }
+  void _changeScore(action, key){ 
+    switch (action) {
+      case "increment":
+        _incrementScore(key);
+        break;
+      case "decrement": 
+        _decrementScore(key);
+        break;
+      case "reset": 
+        _resetScore(key);
+        break;
+      default:
+    }
+  }
+  void _resetScore(key) {
+    setState(() {
+      _score[key] = 0;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -248,18 +276,18 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                 Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
-                    MyScore(counter: _score["left"]!, incrementCounter: () => _incrementScore("left"),decrementCounter: () => _decrementScore("left"), key: const Key("1"),),
+                    MyScore(counter: _score["left"]!, incrementCounter: () => _handleScoreChange("increment", "left"),decrementCounter: () => _handleScoreChange("decrement", "left"), key: const Key("left"),),
 
                     Text('-', style: Theme.of(context).textTheme.headline4), 
-                    MyScore(counter: _score["right"]!, incrementCounter: () => _incrementScore("right"),decrementCounter: () => _decrementScore("right"), key: const Key("2"),),
+                    MyScore(counter: _score["right"]!, incrementCounter: () => _handleScoreChange("increment", "right"),decrementCounter: () => _handleScoreChange("decrement", "right"), key: const Key("right"),),
                   ],
                 ),
             ),
             // todo: style and size this better
             ElevatedButton(
               onPressed: () => {
-                _incrementScore("left"),
-                _incrementScore("right")
+                _handleScoreChange("increment", "left"),
+                _handleScoreChange("increment", "right")
               }, 
               child: const Text("Double"), 
             ),
