@@ -3,6 +3,8 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
+import 'person.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -99,7 +101,10 @@ class _MyHomePageState extends State<MyHomePage> {
     "right" : 0, 
     "left" : 0,
   };
-
+  var _name = { 
+    "left" : "Fencer left", 
+    "right" : "Fencer right", 
+  };
   // Initialise scoreHistory with defaults. 
   // TODO, deal with weird user behaviour like logging some points, resetting the time and then logging some more points.
   var _scoreHistory = [
@@ -266,11 +271,28 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
   Widget _genScoreWidget(String key) { 
-    return MyScore(
-      counter: _score[key]!, 
-      incrementCounter: () => _handleScoreChange("increment", key),
-      decrementCounter: () => _handleScoreChange("decrement", key), 
-      key:  Key( key),);
+    return 
+    Column(
+      children: [
+        PersonWidget(
+          key: Key("name${key}"),
+          defaultName: "Fencer ${key}", 
+          getName: () {return _name[key];}, 
+          updateName: (name) { 
+            setState(() {
+              _name[key] = name;
+            });
+          }
+        ),
+        MyScore(
+          counter: _score[key]!, 
+          incrementCounter: () => _handleScoreChange("increment", key),
+          decrementCounter: () => _handleScoreChange("decrement", key), 
+          key:  Key("score${key}"),
+        ),
+
+      ],
+    );
   }
   @override
   Widget build(BuildContext context) {
