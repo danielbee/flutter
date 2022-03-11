@@ -96,7 +96,6 @@ class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
 
   static const initialtime = Duration(minutes: 0, seconds: 20);
-
   var _score = { 
     "right" : 0, 
     "left" : 0,
@@ -104,6 +103,11 @@ class _MyHomePageState extends State<MyHomePage> {
   var _name = { 
     "left" : "Fencer left", 
     "right" : "Fencer right", 
+  };
+  late var _fightConfig = { 
+    "names" : _name,
+    "boutScore" : 5,
+    "boutTime" : initialtime
   };
   // Initialise scoreHistory with defaults. 
   // TODO, deal with weird user behaviour like logging some points, resetting the time and then logging some more points.
@@ -250,6 +254,17 @@ class _MyHomePageState extends State<MyHomePage> {
       
     });
     print(_scoreHistory);
+    print(_fightConfig);
+  }
+  var _fightHistory = [];
+  void _checkScore(){ 
+    if (_score["left"] == _fightConfig["boutScore"] || _score["right"] == _fightConfig["boutScore"]) { 
+      print("Fight is finished");
+      // TODO; delay this into Reset fight in timer code so that doubles don't trigger end. 
+      setState(() {
+        _fightHistory.add({"config" : _fightConfig, "scores" : _scoreHistory, "finalScore" : _score});
+      });
+    }
   }
   void _changeScore(action, key){ 
     switch (action) {
@@ -264,6 +279,7 @@ class _MyHomePageState extends State<MyHomePage> {
         break;
       default:
     }
+    _checkScore();
   }
   void _resetScore(key) {
     setState(() {
@@ -312,6 +328,9 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            if (_fightHistory.isNotEmpty) Text (
+              "${_fightHistory.last['config']['names']['left']} - ${_fightHistory.last['finalScore']['left']} v ${_fightHistory.last['finalScore']['right']} - ${_fightHistory.last['config']['names']['right']}"
+              ),
             Padding(
               // todo: https://stackoverflow.com/a/65273656
               padding: const EdgeInsets.fromLTRB(30.0, 4.0, 30.0, 4.0),
