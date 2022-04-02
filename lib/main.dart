@@ -123,7 +123,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
   TimerState _timer_state = TimerState.paused;
   Duration _max_time = initialtime;
-  late Timer _timer;
+  late Timer _timer = new Timer.periodic(Duration(seconds:1), (timer) { 
+    _timer.cancel();
+  });
   Stopwatch _stopwatch = Stopwatch();
 
   IconData getTimerIconForTimerState(TimerState timer_state) { 
@@ -168,6 +170,16 @@ class _MyHomePageState extends State<MyHomePage> {
       });
     }
   }
+  void _resetScore(key) {
+    if (key == "both"){ 
+      _resetScore("left");
+      _resetScore("right");
+    } else {
+      setState(() {
+        _score[key] = 0;
+      });
+    }
+  }
 
   void _handleTimer() { 
     
@@ -179,6 +191,7 @@ class _MyHomePageState extends State<MyHomePage> {
           _timer_state = TimerState.paused;
           _stopwatch.reset();
           _timer.cancel();
+          _resetScore("both");
           break;
         case TimerState.paused:
           _timer_state = TimerState.running;
@@ -278,7 +291,8 @@ class _MyHomePageState extends State<MyHomePage> {
         print("Fight is finished");
         // TODO; delay this into Reset fight in timer code so that doubles don't trigger end. 
         setState(() {
-          _fightHistory.add({"config" : _fightConfig, "scores" : _scoreHistory, "finalScore" : _score});
+          _fightHistory.add({"config" : {..._fightConfig}, "scores" : [..._scoreHistory], "finalScore" : {..._score}});
+          _timer_state = TimerState.finished;
         });
       }
     }
@@ -297,11 +311,6 @@ class _MyHomePageState extends State<MyHomePage> {
       default:
     }
     _checkScore();
-  }
-  void _resetScore(key) {
-    setState(() {
-      _score[key] = 0;
-    });
   }
   Widget _genScoreWidget(String key) { 
     return 
@@ -331,7 +340,8 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
-    //
+    
+    var displayedFightList = _fightHistory.sublist(_fightHistory.length <= 5 ? 0 : _fightHistory.length-5);
     // The Flutter framework has been optimized to make rerunning build methods
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
@@ -345,9 +355,9 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            if (_fightHistory.isNotEmpty) Text (
-              "${_fightHistory.last['config']['names']['left']} - ${_fightHistory.last['finalScore']['left']} v ${_fightHistory.last['finalScore']['right']} - ${_fightHistory.last['config']['names']['right']}"
-              ),
+            for (var fightHistory in displayedFightList) Text(
+              "${fightHistory['config']['names']['left']} - ${fightHistory['finalScore']['left']} v ${fightHistory['finalScore']['right']} - ${fightHistory['config']['names']['right']}"
+            ),
             Padding(
               // todo: https://stackoverflow.com/a/65273656
               padding: const EdgeInsets.fromLTRB(30.0, 4.0, 30.0, 4.0),
