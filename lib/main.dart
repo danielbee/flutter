@@ -248,7 +248,7 @@ class _MyHomePageState extends State<MyHomePage> {
     _changeScore(action, key);
     setState(() {
       _scoreHistory.add({
-        "score" : _score, 
+        "score" : {..._score}, // deep copy to avoid pass by reference
         "time" : getElapsedFromMaxTime(),
       });
       
