@@ -148,14 +148,25 @@ class _MyHomePageState extends State<MyHomePage> {
     return ret_icon;
   }
   void _incrementScore(key) {
-    setState(() {
-     _score[key] = _score[key]! + 1;
-    });
+    if (key == "both"){ 
+      // todo make this an enum lookup or something
+      _incrementScore("left");
+      _incrementScore("right");
+    } else { 
+      setState(() {
+        _score[key] = _score[key]! + 1;
+      });
+    }
   }
   void _decrementScore(key) {
-    setState(() {
-     _score[key] = _score[key]! - 1;
-    });
+    if (key == "both"){ 
+      _decrementScore("left");
+      _decrementScore("right");
+    } else { 
+      setState(() {
+       _score[key] = _score[key]! - 1;
+      });
+    }
   }
 
   void _handleTimer() { 
@@ -259,11 +270,17 @@ class _MyHomePageState extends State<MyHomePage> {
   var _fightHistory = [];
   void _checkScore(){ 
     if (_score["left"] == _fightConfig["boutScore"] || _score["right"] == _fightConfig["boutScore"]) { 
-      print("Fight is finished");
-      // TODO; delay this into Reset fight in timer code so that doubles don't trigger end. 
-      setState(() {
-        _fightHistory.add({"config" : _fightConfig, "scores" : _scoreHistory, "finalScore" : _score});
-      });
+      if (_score["left"] == _score["right"]) { 
+        // Double point at match-point. Decrement both. 
+        _decrementScore("left");
+        _decrementScore("right");
+      } else { 
+        print("Fight is finished");
+        // TODO; delay this into Reset fight in timer code so that doubles don't trigger end. 
+        setState(() {
+          _fightHistory.add({"config" : _fightConfig, "scores" : _scoreHistory, "finalScore" : _score});
+        });
+      }
     }
   }
   void _changeScore(action, key){ 
@@ -344,11 +361,14 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
             ),
             // todo: style and size this better
+            // Double Button
             ElevatedButton(
               onPressed: () => {
-                _handleScoreChange("increment", "left"),
-                _handleScoreChange("increment", "right")
+                _handleScoreChange("increment", "both"),
               }, 
+              onLongPress: ()=> { 
+                _handleScoreChange("decrement", "both")
+              },
               child: const Text("Double"), 
             ),
             GestureDetector(
